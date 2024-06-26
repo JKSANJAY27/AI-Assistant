@@ -70,29 +70,6 @@ class WebcamStream:
         self.stream.release()
 
 class Assistant:
-    def __init__(self, model):
-        self.chain = self._create_inference_chain(model)
-        self.tts_engine = pyttsx3.init()
-
-    def answer(self, prompt, image):
-        if not prompt:
-            return
-
-        print("Prompt:", prompt)
-
-        response = self.chain.invoke(
-            {"prompt": prompt, "image_base64": image.decode()},
-            config={"configurable": {"session_id": "unused"}},
-        ).strip()
-
-        print("Response:", response)
-
-        if response:
-            self._tts(response)
-
-    def _tts(self, response):
-        self.tts_engine.say(response)
-        self.tts_engine.runAndWait()
 
     def _create_inference_chain(self, model):
         SYSTEM_PROMPT = """
@@ -137,14 +114,6 @@ webcam_stream = WebcamStream().start()
 model = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", api_key=gemini_api_key)
 
 assistant = Assistant(model)
-
-def audio_callback(recognizer, audio):
-    try:
-        prompt = recognizer.recognize_whisper(audio, model="base", language="english")
-        assistant.answer(prompt, webcam_stream.read(encode=True))
-
-    except UnknownValueError:
-        print("There was an error processing the audio.")
 
 recognizer = Recognizer()
 microphone = Microphone()
